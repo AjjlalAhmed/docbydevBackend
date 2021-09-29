@@ -3,7 +3,29 @@ const bcrypt = require("bcrypt");
 const validator = require("email-validator");
 const authenticateServices = require("../services/authenticateServices");
 const jwt = require("jsonwebtoken");
-// Authenticate function
+// Functions
+const createResponseObject = (token, message, user) => {
+    const responseObject = {
+        status: 200,
+        error: null,
+        message: message,
+        token: token,
+        username: user.result[0].username,
+        useremail: user.result[0].useremail,
+        userid: user.result[0].id,
+        joined: user.result[0].joined,
+        profession: user.result[0].profession,
+        phone: user.result[0].phone,
+        address: user.result[0].address,
+        site: user.result[0].site,
+        birthday: user.result[0].birthday,
+        gender: user.result[0].gender,
+        bio: user.result[0].bio,
+        skills: user.result[0].skills,
+        profileimage: user.result[0].profileimage,
+    };
+    return responseObject;
+};
 const signupController = async(req, res) => {
     // Extracting user info from req body
     const username = req.body.name;
@@ -33,25 +55,7 @@ const signupController = async(req, res) => {
         // Creating access token
         const token = jwt.sign(useremail, process.env.SECRET);
         // Sending response to client
-        res.send({
-            status: 200,
-            error: null,
-            message: "New user added to database",
-            token: token,
-            username: user.result[0].username,
-            useremail: useremail,
-            userid: user.result[0].id,
-            joined: user.result[0].joined,
-            profession: user.result[0].profession,
-            phone: user.result[0].phone,
-            address: user.result[0].address,
-            site: user.result[0].site,
-            birthday: user.result[0].birthday,
-            gender: user.result[0].gender,
-            bio: user.result[0].bio,
-            skills: user.result[0].skills,
-            profileimage: user.result[0].profileimage,
-        });
+        res.send(createResponseObject(token, "New user added to database", user));
     } catch (e) {
         // Run if invalid email
         if (e == "Invalid email") {
@@ -101,25 +105,7 @@ const loginController = async(req, res) => {
         // Creating access token
         const token = jwt.sign(useremail, process.env.SECRET);
         // Send response to client
-        res.send({
-            status: 200,
-            error: null,
-            message: "User logged in",
-            token: token,
-            username: user.result[0].username,
-            useremail: useremail,
-            userid: user.result[0].id,
-            joined: user.result[0].joined,
-            profession: user.result[0].profession,
-            phone: user.result[0].phone,
-            address: user.result[0].address,
-            site: user.result[0].site,
-            birthday: user.result[0].birthday,
-            gender: user.result[0].gender,
-            bio: user.result[0].bio,
-            skills: user.result[0].skills,
-            profileimage: user.result[0].profileimage,
-        });
+        res.send(createResponseObject(token, "User logged in", user));
     } catch (e) {
         console.log(e);
         // Run if invalid email
