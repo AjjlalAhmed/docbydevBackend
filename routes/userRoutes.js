@@ -11,5 +11,6 @@ router.get("/getuserdata/:id", userController.getUserDataController);
 // Post routes
 router.post("/checktoken", userController.checkTokenController);
 router.post("/adddoc", userController.insertDocController);
+router.post("/editprofile", userController.editprofileController);
 // Exporting router
 module.exports = router;

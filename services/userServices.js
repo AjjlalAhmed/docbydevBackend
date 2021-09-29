@@ -47,6 +47,21 @@ const getUserDataService = async (userid) => {
   const result = await runQuery.runQuery(query);
   return result;
 };
+const editProfileService = async (userid, user,imgUrl) => {
+  const query = `UPDATE users SET 
+  username = '${user.name}', 
+  birthday = '${user.birthday}', 
+  profession = '${user.profession}', 
+  bio = '${user.bio}',
+  skills = '${user.skills}',
+  phone = '${user.phone}',
+  address = '${user.address}',
+  site = '${user.site}',
+  gender = '${user.gender}',
+  profileimage = '${imgUrl}' WHERE id = ${Number(userid)}`;
+  const result = await runQuery.runQuery(query);
+  return result;
+};
 // Exporting functions
 module.exports = {
   checkUserExistService,
@@ -55,4 +70,5 @@ module.exports = {
   checkIfUserLikedService,
   deletLikeService,
   getUserDataService,
+  editProfileService
 };

@@ -1,6 +1,9 @@
+// Importing thing we need
 const jwt = require("jsonwebtoken");
 const userServices = require("../services/userServices");
+const imageDataURI = require("image-data-uri");
 // Functions
+// Check user token controller
 const checkTokenController = async(req, res) => {
     const token = req.body.token;
     try {
@@ -28,6 +31,7 @@ const checkTokenController = async(req, res) => {
         });
     }
 };
+// Insert new doc controller
 const insertDocController = async(req, res) => {
     const token = req.body.token;
     const tags = req.body.tags;
@@ -81,6 +85,7 @@ const insertDocController = async(req, res) => {
         });
     }
 };
+// Add like controller
 const addLikeToDocByIdController = async(req, res) => {
     const docid = req.query.id;
     const token = req.header("authorization");
@@ -135,6 +140,7 @@ const addLikeToDocByIdController = async(req, res) => {
         }
     }
 };
+// Check if like controller
 const checkIfLikedController = async(req, res) => {
     const userid = req.params.id;
     const docids = req.query.docids;
@@ -156,6 +162,7 @@ const checkIfLikedController = async(req, res) => {
         }
     } catch (e) {}
 };
+// Get user data controller
 const getUserDataController = async(req, res) => {
     const userid = req.params.id;
     const token = req.header("authorization");
@@ -194,6 +201,50 @@ const getUserDataController = async(req, res) => {
         }
     }
 };
+// Edit user data controller
+const editprofileController = async(req, res) => {
+    // Extracting user data for req body
+    const token = req.body.token;
+    let imgBase64String = req.body.img;
+    const userNewData = {
+        name: req.body.name,
+        email: req.body.email,
+        bio: req.body.bio,
+        skills: req.body.skills,
+        address: req.body.address,
+        birthday: req.body.birthday,
+        gender: req.body.gender,
+        phone: req.body.phone,
+        profession: req.body.profession,
+        site: req.body.site,
+    };
+    try {
+        // Converting base64 string image 
+        if (imgBase64String.includes("data:image/")) {
+            let filePath = `public/assets/uploads/profileImages/image-${Date.now()}`;
+            // Returns a Promise
+            await imageDataURI
+                .outputFile(imgBase64String, filePath)
+                .then((imgSrc) => {
+                    imgSrc = imgSrc.replace(`public`, "");
+                    console.log(
+                        `http://${req.hostname}:${process.env.PORT || 3000}/${imgSrc}`
+                    );
+                    imgBase64String = `http://${req.hostname}:${
+            process.env.PORT || 3000
+          }${imgSrc}`;
+                });
+        }
+        // Verifying user token
+        const useremail = await jwt.verify(token, process.env.SECRET);
+        const user = await userServices.checkUserExistService(useremail);
+        const userid = user.result[0].id;
+        const updatedUser = await userServices.editProfileService(userid, userNewData, imgBase64String)
+        console.log(updatedUser);
+    } catch (e) {
+        console.log(e);
+    }
+};
 // Exporting functions
 module.exports = {
     checkTokenController,
@@ -201,4 +252,5 @@ module.exports = {
     addLikeToDocByIdController,
     checkIfLikedController,
     getUserDataController,
+    editprofileController,
 };
