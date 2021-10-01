@@ -33,9 +33,11 @@ const getDocByIdService = async(id) => {
 const getUserDocsByIdService = async(userid) => {
     const query = `SELECT
     user_docs.*,
+    users.profileimage,
     COUNT(likes.postid) as totallikes
     FROM user_docs
     LEFT JOIN likes ON  user_docs.id = likes.postid
+    INNER JOIN users ON  user_docs.userid = users.id
     WHERE user_docs.userid = ${Number(userid)}
     GROUP BY user_docs.id`;
     const result = await runQuery.runQuery(query);
@@ -54,7 +56,8 @@ const getUserDataByIdService = async(userid) => {
     gender,
     bio,
     skills,
-    profileimage FROM users WHERE id = ${Number(userid)} `;
+    profileimage FROM users 
+    WHERE id = ${Number(userid)} `;
     const result = await runQuery.runQuery(query);
     return result;
 };

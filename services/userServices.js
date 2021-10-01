@@ -39,15 +39,17 @@ const deletLikeService = async (userid, docid) => {
 const getUserDataService = async (userid) => {
   const query = `SELECT
   user_docs.*,
+  users.profileimage,
   COUNT(likes.postid) as totallikes
   FROM user_docs
   LEFT JOIN likes ON  user_docs.id = likes.postid
+  INNER JOIN users ON  user_docs.userid = users.id
   WHERE user_docs.userid = ${Number(userid)}
   GROUP BY user_docs.id`;
   const result = await runQuery.runQuery(query);
   return result;
 };
-const editProfileService = async (userid, user,imgUrl) => {
+const editProfileService = async (userid, user, imgUrl) => {
   const query = `UPDATE users SET 
   username = '${user.name}', 
   birthday = '${user.birthday}', 
@@ -62,6 +64,29 @@ const editProfileService = async (userid, user,imgUrl) => {
   const result = await runQuery.runQuery(query);
   return result;
 };
+const deleteDocService = async (userid, docid) => {
+  const query = `DELETE FROM user_docs WHERE id = ${Number(
+    docid
+  )} AND userid = ${userid}`;
+  const result = await runQuery.runQuery(query);
+  return result;
+};
+const getDocService = async (docid) => {
+  const query = `SELECT * FROM user_docs WHERE id = ${Number(docid)}`;
+  const result = await runQuery.runQuery(query);
+  return result;
+};
+const editDocService = async (docid, docInfo) => {
+  const query = `UPDATE user_docs SET doctitle = '${
+    docInfo.docTitle
+  }',doctags = '${docInfo.tags}',docdata = '${docInfo.markdown.replace(
+    /'/g,
+    "`"
+  )}'
+  WHERE id =${Number(docid)};`;
+  const result = await runQuery.runQuery(query);
+  return result;
+};
 // Exporting functions
 module.exports = {
   checkUserExistService,
@@ -70,5 +95,8 @@ module.exports = {
   checkIfUserLikedService,
   deletLikeService,
   getUserDataService,
-  editProfileService
+  editProfileService,
+  deleteDocService,
+  getDocService,
+  editDocService,
 };

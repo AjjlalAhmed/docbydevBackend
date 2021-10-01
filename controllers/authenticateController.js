@@ -3,29 +3,9 @@ const bcrypt = require("bcrypt");
 const validator = require("email-validator");
 const authenticateServices = require("../services/authenticateServices");
 const jwt = require("jsonwebtoken");
-// Functions
-const createResponseObject = (token, message, user) => {
-    const responseObject = {
-        status: 200,
-        error: null,
-        message: message,
-        token: token,
-        username: user.result[0].username,
-        useremail: user.result[0].useremail,
-        userid: user.result[0].id,
-        joined: user.result[0].joined,
-        profession: user.result[0].profession,
-        phone: user.result[0].phone,
-        address: user.result[0].address,
-        site: user.result[0].site,
-        birthday: user.result[0].birthday,
-        gender: user.result[0].gender,
-        bio: user.result[0].bio,
-        skills: user.result[0].skills,
-        profileimage: user.result[0].profileimage,
-    };
-    return responseObject;
-};
+const createResponseObject = require('../reusable/createResponseObject')
+    // Functions
+    // This function controller signup route 
 const signupController = async(req, res) => {
     // Extracting user info from req body
     const username = req.body.name;
@@ -36,7 +16,7 @@ const signupController = async(req, res) => {
         const validEmail = validator.validate(useremail);
         // Throw error
         if (!validEmail) throw "Invalid email";
-        // Checking if  user is exits
+        // Calling check if user service
         const exits = await authenticateServices.checkUserExistService(useremail);
         // Throw error
         if (exits.result.length != 0) throw "User exist";
@@ -44,13 +24,13 @@ const signupController = async(req, res) => {
         const hashedPassword = await bcrypt.hash(userpassword, 10);
         // Throw error
         if (!hashedPassword) throw "Server";
-        // Inserting user to db
+        // Calling insert user service 
         await authenticateServices.insertNewUserServices(
             username,
             useremail,
             hashedPassword
         );
-        // Getting user info
+        // Calling check if user service
         const user = await authenticateServices.checkUserExistService(useremail);
         // Creating access token
         const token = jwt.sign(useremail, process.env.SECRET);
@@ -83,6 +63,7 @@ const signupController = async(req, res) => {
         }
     }
 };
+// This function controller login route 
 const loginController = async(req, res) => {
     // Extracting user info from req body
     const useremail = req.body.email;
@@ -92,7 +73,7 @@ const loginController = async(req, res) => {
         const validEmail = validator.validate(useremail);
         // Throw error
         if (!validEmail) throw "Invalid email";
-        // Checking if  user is exits
+        // Calling check if user service
         const user = await authenticateServices.checkUserExistService(useremail);
         if (user.result.length == 0) throw "User does not exist";
         // Verifying user password

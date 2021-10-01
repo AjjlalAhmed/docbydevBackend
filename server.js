@@ -11,9 +11,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.static("public"));
 app.use(cors());
 // Routes
-app.use("/", require("./routes/publicRoutes"));
-app.use("/", require("./routes/authenticate"));
-app.use("/user/", require("./routes/userRoutes"));
+app.use("/", require("./routes/routes"));
 // Port
 const PORT = process.env.PORT || 3000;
 // Listening to server
