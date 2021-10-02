@@ -8,7 +8,7 @@ const db = mysql.createConnection({
     collation: 'utf8mb4_unicode_ci',
 });
 db.connect(function(err) {
-    if (err) throw err.message;
+    if (err) throw err;
     console.log("Connected!");
 });
 module.exports = db;
