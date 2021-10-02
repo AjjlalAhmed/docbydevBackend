@@ -2,17 +2,18 @@
 const jwt = require("jsonwebtoken");
 const userServices = require("../services/userServices");
 const imageDataURI = require("image-data-uri");
-const createResponseObject = require("../reusable/createResponseObject");
+const createResponseObject = require("../helpers/createResponseObject");
+const errorHandler = require("../helpers/errorHandler");
 // Functions
 // Check user token controller
-const checkTokenController = async(req, res) => {
+const checkToken = async(req, res) => {
     // Extracting user token from req.body
     const token = req.body.token;
     try {
         // Verifying user token
         const verifyUser = jwt.verify(token, process.env.SECRET);
         // Getting user data of given email
-        const user = await userServices.checkUserExistService(verifyUser);
+        const user = await userServices.checkUserExist(verifyUser);
         if (user.result.length == 0) throw "User";
         // Sending response to client
         res.send({
@@ -22,34 +23,11 @@ const checkTokenController = async(req, res) => {
             isUser: verifyUser,
         });
     } catch (e) {
-        //   Run if jwt error
-        if (e.name == "JsonWebTokenError") {
-            res.send({
-                status: 401,
-                error: "Unauthorized",
-                errorMessage: "Invalid signature",
-            });
-        }
-        // Run if user does not exist
-        else if (e == "User") {
-            res.send({
-                status: 401,
-                error: "Email",
-                errorMessage: "User does not exist",
-            });
-        }
-        // Run if server error
-        else {
-            res.send({
-                status: 401,
-                error: "Server",
-                errorMessage: "Internel server error",
-            });
-        }
+        errorHandler(e, res);
     }
 };
 // Insert new doc controller
-const insertDocController = async(req, res) => {
+const insertDoc = async(req, res) => {
     // Extracting doc info from req body
     const token = req.body.token;
     const tags = req.body.tags;
@@ -60,12 +38,12 @@ const insertDocController = async(req, res) => {
         // Verifying user token
         const verifyUser = jwt.verify(token, process.env.SECRET);
         // Getting user data
-        const user = await userServices.checkUserExistService(verifyUser);
+        const user = await userServices.checkUserExist(verifyUser);
         // Checking if user exist
         if (user.result[0].length == 0) throw "User";
         const docInfo = { docTitle, tags, markdown };
         // Calling insert doc service
-        const docAdded = await userServices.insertDocService(
+        const docAdded = await userServices.insertDoc(
             user.result[0].id,
             verifyUser,
             docInfo
@@ -77,42 +55,11 @@ const insertDocController = async(req, res) => {
             message: "New doc added to database",
         });
     } catch (e) {
-        //   Run if some field missing
-        if (e == "Some field is missing") {
-            res.send({
-                status: 400,
-                error: "Missing",
-                errorMessage: "Some field are missing",
-            });
-        }
-        //   Run if jwt error
-        else if (e.name == "JsonWebTokenError") {
-            res.send({
-                status: 401,
-                error: "Unauthorized",
-                errorMessage: "Invalid signature",
-            });
-        }
-        // Run if user does not exist
-        else if (e == "User") {
-            res.send({
-                status: 409,
-                error: "User",
-                errorMessage: "User does not exist",
-            });
-        }
-        // Run if server error
-        else {
-            res.send({
-                status: 500,
-                error: "Server",
-                errorMessage: "Internel server error",
-            });
-        }
+        errorHandler(e, res);
     }
 };
 // Add like controller
-const addLikeToDocByIdController = async(req, res) => {
+const addLikeToDocById = async(req, res) => {
     // Extracting doc info from query
     const docid = req.query.id;
     const token = req.header("authorization");
@@ -120,16 +67,16 @@ const addLikeToDocByIdController = async(req, res) => {
         // verifying user token
         const useremail = jwt.verify(token, process.env.SECRET);
         // Checking if user exist
-        const user = await userServices.checkUserExistService(useremail);
+        const user = await userServices.checkUserExist(useremail);
         // Throw error
         if (user.result.length == 0) throw "User";
         const userid = user.result[0].id;
         // Callign check if liked service
-        const ifLiked = await userServices.checkIfUserLikedService(userid, docid);
+        const ifLiked = await userServices.checkIfUserLiked(userid, docid);
         // Checking user liked this doc
         if (ifLiked.result.length == 0) {
             // Calling add like service
-            const data = await userServices.addLikeService(userid, docid);
+            const data = await userServices.addLike(userid, docid);
             if (data.reject == false) {
                 res.send({
                     status: 200,
@@ -139,7 +86,7 @@ const addLikeToDocByIdController = async(req, res) => {
             }
         } else {
             // Calling delete like service
-            const data = await userServices.deletLikeService(userid, docid);
+            const data = await userServices.deletLike(userid, docid);
             if (data.reject == false) {
                 res.send({
                     status: 200,
@@ -149,41 +96,17 @@ const addLikeToDocByIdController = async(req, res) => {
             }
         }
     } catch (e) {
-        console.log(e);
-        //   Run if jwt error
-        if (e.name == "JsonWebTokenError") {
-            res.send({
-                status: 401,
-                error: "Unauthorized",
-                errorMessage: "Invalid signature",
-            });
-        }
-        // Run if user does not exist
-        else if (e == "User") {
-            res.send({
-                status: 409,
-                error: "User",
-                errorMessage: "User does not exist",
-            });
-        }
-        // Run if server error
-        else {
-            res.send({
-                status: 500,
-                error: "Server",
-                errorMessage: "Internel server error",
-            });
-        }
+        errorHandler(e, res);
     }
 };
 // Check if like controller
-const checkIfLikedController = async(req, res) => {
+const checkIfLiked = async(req, res) => {
     // Extracting user info from query & params
     const userid = req.params.id;
     const docids = req.query.docids;
     try {
         //   Caling check if like service
-        const data = await userServices.checkIfUserLikedService(userid, docids);
+        const data = await userServices.checkIfUserLiked(userid, docids);
         if (data.result.length == 0) throw "Don't like";
         // Sending response to client
         res.send({
@@ -193,26 +116,11 @@ const checkIfLikedController = async(req, res) => {
             liked: data.result,
         });
     } catch (e) {
-        //   Run if don't like rror
-        if (e == "Don't like") {
-            res.send({
-                status: 200,
-                error: "Not Liked",
-                errorMessage: "User do not any doc",
-            });
-        }
-        // Run if server error
-        else {
-            res.send({
-                status: 200,
-                error: "Server",
-                errorMessage: "Internel server ",
-            });
-        }
+        errorHandler(e, res);
     }
 };
 // Get user data controller
-const getUserDataController = async(req, res) => {
+const getUserData = async(req, res) => {
     // Extracting user info from params
     const userid = req.params.id;
     const token = req.header("authorization");
@@ -220,7 +128,7 @@ const getUserDataController = async(req, res) => {
         // verifying user token
         jwt.verify(token, process.env.SECRET);
         // Calling get user data service
-        const data = await userServices.getUserDataService(userid);
+        const data = await userServices.getUserData(userid);
         if (data.result.length == 0) throw "Empty";
         // Sending response to client
         res.send({
@@ -230,35 +138,11 @@ const getUserDataController = async(req, res) => {
             docs: data.result,
         });
     } catch (e) {
-        console.log(e);
-        //   Run if jwt error
-        if (e.name == "JsonWebTokenError") {
-            res.send({
-                status: 401,
-                error: "Unauthorized",
-                errorMessage: "Invalid signature",
-            });
-        }
-        // Run if user does not exist
-        else if (e == "Empty") {
-            res.send({
-                status: 404,
-                error: "Empty",
-                errorMessage: "Docs not found",
-            });
-        }
-        // Run if server error
-        else {
-            res.send({
-                status: 500,
-                error: "Server",
-                errorMessage: "Internel server error",
-            });
-        }
+        errorHandler(e, res);
     }
 };
 // Edit user data controller
-const editprofileController = async(req, res) => {
+const editprofile = async(req, res) => {
     // Extracting user data for req body
     const token = req.body.token;
     let imgBase64String = req.body.img;
@@ -291,45 +175,22 @@ const editprofileController = async(req, res) => {
         // Verifying user token
         const useremail = await jwt.verify(token, process.env.SECRET);
         // Checking if user exist
-        const user = await userServices.checkUserExistService(useremail);
+        const user = await userServices.checkUserExist(useremail);
         // Throw error
         if (user.result.length == 0) throw "User";
         const userid = user.result[0].id;
         // Calling edit profile service
-        await userServices.editProfileService(userid, userNewData, imgBase64String);
+        await userServices.editProfile(userid, userNewData, imgBase64String);
         // Checking if user exist
-        const updatedUser = await userServices.checkUserExistService(useremail);
+        const updatedUser = await userServices.checkUserExist(useremail);
         // Sending response to client
         res.send(createResponseObject(token, "Profile edit", updatedUser));
     } catch (e) {
-        //   Run if jwt error
-        if (e.name == "JsonWebTokenError") {
-            res.send({
-                status: 401,
-                error: "Unauthorized",
-                errorMessage: "Invalid signature",
-            });
-        }
-        // Run if user does not exist
-        else if (e == "User") {
-            res.send({
-                status: 409,
-                error: "User",
-                errorMessage: "User does not exist",
-            });
-        }
-        // Run if server error
-        else {
-            res.send({
-                status: 500,
-                error: "Server",
-                errorMessage: "Internel server error",
-            });
-        }
+        errorHandler(e, res);
     }
 };
 // Delete doc controller
-const deleteDocController = async(req, res) => {
+const deleteDoc = async(req, res) => {
     // Extracting data from header query
     const token = req.header("authorization");
     const docid = req.query.id;
@@ -338,14 +199,11 @@ const deleteDocController = async(req, res) => {
         // verifying user token
         const useremail = jwt.verify(token, process.env.SECRET);
         // Checking if user exist
-        const user = await userServices.checkUserExistService(useremail);
+        const user = await userServices.checkUserExist(useremail);
         // Throw error
         if (user.result.length == 0) throw "User";
         // Calling delete doc service
-        const deleted = await userServices.deleteDocService(
-            user.result[0].id,
-            docid
-        );
+        const deleted = await userServices.deleteDoce(user.result[0].id, docid);
         // Sending response to client
         res.send({
             status: 200,
@@ -353,37 +211,11 @@ const deleteDocController = async(req, res) => {
             message: "Doc deleted",
         });
     } catch (e) {
-        //   Run if jwt error
-        if (e == "Docid not define") {
-            res.send({
-                status: 409,
-                error: "docid",
-                errorMessage: "Docid is not define",
-            });
-        } else if (e.name == "JsonWebTokenError") {
-            res.send({
-                status: 401,
-                error: "Unauthorized",
-                errorMessage: "Invalid signature",
-            });
-        } // Run if user does not exist
-        else if (e == "User") {
-            res.send({
-                status: 409,
-                error: "User",
-                errorMessage: "User does not exist",
-            });
-        } else {
-            res.send({
-                status: 500,
-                error: "Server",
-                errorMessage: "Internel server error",
-            });
-        }
+        errorHandler(e, res);
     }
 };
 // Get doc controller
-const getdocController = async(req, res) => {
+const getdoc = async(req, res) => {
     // Extracting docid & token from req
     const docid = req.params.docid;
     const token = req.header("authorization");
@@ -392,7 +224,7 @@ const getdocController = async(req, res) => {
         // verifying user token
         const useremail = jwt.verify(token, process.env.SECRET);
         // Calling get doc service
-        const doc = await userServices.getDocService(docid);
+        const doc = await userServices.getDoc(docid);
         // Sending response to client
         if (doc.result.length == 0) throw "Empty";
         res.send({
@@ -402,36 +234,11 @@ const getdocController = async(req, res) => {
             doc: doc.result,
         });
     } catch (e) {
-        //   Run if jwt error
-        if (e == "Docid not define") {
-            res.send({
-                status: 409,
-                error: "docid",
-                errorMessage: "Docid is not define",
-            });
-        } else if (e.name == "JsonWebTokenError") {
-            res.send({
-                status: 401,
-                error: "Unauthorized",
-                errorMessage: "Invalid signature",
-            });
-        } else if (e == "Empty") {
-            res.send({
-                status: 404,
-                error: "Empty",
-                errorMessage: "Docs not found",
-            });
-        } else {
-            res.send({
-                status: 500,
-                error: "Server",
-                errorMessage: "Internel server error",
-            });
-        }
+        errorHandler(e, res);
     }
 };
 // Edit doc data controller
-const editDocController = async(req, res) => {
+const editDoc = async(req, res) => {
     // Extracting doc info from req
     const token = req.body.token;
     const docid = req.query.docid;
@@ -443,12 +250,12 @@ const editDocController = async(req, res) => {
         // Verifying user token
         const verifyUser = jwt.verify(token, process.env.SECRET);
         // Getting user data
-        const user = await userServices.checkUserExistService(verifyUser);
+        const user = await userServices.checkUserExist(verifyUser);
         // Checking if user exist
         if (user.result[0].length == 0) throw "User";
         const docInfo = { docTitle, tags, markdown };
         // Calling insert doc service
-        const docAdded = await userServices.editDocService(docid, docInfo);
+        const docAdded = await userServices.editDoc(docid, docInfo);
         // Sending response to client
         res.send({
             status: 200,
@@ -456,49 +263,18 @@ const editDocController = async(req, res) => {
             message: "Doc edit",
         });
     } catch (e) {
-        //   Run if some field missing
-        if (e == "Some field is missing") {
-            res.send({
-                status: 400,
-                error: "Missing",
-                errorMessage: "Some field are missing",
-            });
-        }
-        //   Run if jwt error
-        else if (e.name == "JsonWebTokenError") {
-            res.send({
-                status: 401,
-                error: "Unauthorized",
-                errorMessage: "Invalid signature",
-            });
-        }
-        // Run if user does not exist
-        else if (e == "User") {
-            res.send({
-                status: 409,
-                error: "User",
-                errorMessage: "User does not exist",
-            });
-        }
-        // Run if server error
-        else {
-            res.send({
-                status: 500,
-                error: "Server",
-                errorMessage: "Internel server error",
-            });
-        }
+        errorHandler(e, res);
     }
 };
 // Exporting functions
 module.exports = {
-    checkTokenController,
-    insertDocController,
-    addLikeToDocByIdController,
-    checkIfLikedController,
-    getUserDataController,
-    editprofileController,
-    deleteDocController,
-    getdocController,
-    editDocController,
+    checkToken,
+    insertDoc,
+    addLikeToDocById,
+    checkIfLiked,
+    getUserData,
+    editprofile,
+    deleteDoc,
+    getdoc,
+    editDoc,
 };

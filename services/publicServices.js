@@ -1,7 +1,10 @@
 // Importing thing we need
-const runQuery = require("../reusable/runQuery");
+const runQuery = require("../helpers/runQuery");
 // Functions
-const getDocsService = async() => {
+const getDocs = async(category) => {
+    if (category == "latest") category = "user_docs.date DESC"
+    else if (category == "top") category = "totallikes DESC"
+    else if (category == "feed") category = "RAND()"
     const query = `SELECT
     user_docs.*,
     users.username,
@@ -11,11 +14,12 @@ const getDocsService = async() => {
     INNER JOIN users ON user_docs.userid = users.id
     LEFT JOIN likes ON  user_docs.id = likes.postid
     GROUP BY user_docs.id
+    ORDER BY ${category}
     `;
     const result = await runQuery.runQuery(query);
     return result;
 };
-const getDocByIdService = async(id) => {
+const getDocById = async(id) => {
     const query = `SELECT user_docs.*,
      users.username, 
      users.profileimage, 
@@ -30,7 +34,7 @@ const getDocByIdService = async(id) => {
     const result = await runQuery.runQuery(query);
     return result;
 };
-const getUserDocsByIdService = async(userid) => {
+const getUserDocsById = async(userid) => {
     const query = `SELECT
     user_docs.*,
     users.profileimage,
@@ -43,7 +47,7 @@ const getUserDocsByIdService = async(userid) => {
     const result = await runQuery.runQuery(query);
     return result;
 };
-const getUserDataByIdService = async(userid) => {
+const getUserDataById = async(userid) => {
     const query = `SELECT username,
     useremail,
     id,
@@ -63,8 +67,8 @@ const getUserDataByIdService = async(userid) => {
 };
 // Exporting functions
 module.exports = {
-    getDocsService,
-    getDocByIdService,
-    getUserDocsByIdService,
-    getUserDataByIdService
+    getDocs,
+    getDocById,
+    getUserDocsById,
+    getUserDataById
 };

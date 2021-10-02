@@ -9,27 +9,23 @@ const router = express.Router();
 // Routes
 
 // Public routes
-router.get("/getdata", publicController.getDocsController);
-router.get("/getdata/:id", publicController.getDocByIdController);
-router.get(
-    "/userprofile/:userid",
-    publicController.getUserProfileByIdController
-);
+router.get("/getdoc", publicController.getDocs);
+router.get("/getdoc/:id", publicController.getDocById);
+router.get("/userprofile/:userid", publicController.getUserProfileById);
+
 // Authenting routes
-router.post("/signup", autenticateController.signupController);
-router.post("/login", autenticateController.loginController);
+router.post("/signup", autenticateController.signup);
+router.post("/login", autenticateController.login);
+
 // User routes
-router.get(`${userPrefix}like`, userController.addLikeToDocByIdController);
-router.get(`${userPrefix}liked/:id`, userController.checkIfLikedController);
-router.get(
-    `${userPrefix}getuserdata/:id`,
-    userController.getUserDataController
-);
-router.get(`${userPrefix}getdoc/:docid`, userController.getdocController);
-router.post(`${userPrefix}checktoken`, userController.checkTokenController);
-router.post(`${userPrefix}adddoc`, userController.insertDocController);
-router.post(`${userPrefix}editprofile`, userController.editprofileController);
-router.post(`${userPrefix}editdoc`, userController.editDocController);
-router.delete(`${userPrefix}deletedoc`, userController.deleteDocController);
+router.get(`${userPrefix}like`, userController.addLikeToDocById);
+router.get(`${userPrefix}liked/:id`, userController.checkIfLiked);
+router.get(`${userPrefix}getuserdata/:id`, userController.getUserData);
+router.get(`${userPrefix}getdoc/:docid`, userController.getdoc);
+router.post(`${userPrefix}checktoken`, userController.checkToken);
+router.post(`${userPrefix}adddoc`, userController.insertDoc);
+router.post(`${userPrefix}editprofile`, userController.editprofile);
+router.post(`${userPrefix}editdoc`, userController.editDoc);
+router.delete(`${userPrefix}deletedoc`, userController.deleteDoc);
 // Exporting router
 module.exports = router;

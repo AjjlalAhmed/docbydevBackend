@@ -4,6 +4,8 @@ const db = mysql.createConnection({
     user: "root",
     password: "",
     database: "docbydev",
+    charset: 'utf8mb4',
+    collation: 'utf8mb4_unicode_ci',
 });
 db.connect(function(err) {
     if (err) throw err.message;

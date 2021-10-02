@@ -1,12 +1,15 @@
 // Importing thing we need
-const runQuery = require("../reusable/runQuery");
+const runQuery = require("../helpers/runQuery");
 // Functions
-const checkUserExistService = async(useremail) => {
+
+// This function check if user exist 
+const checkUserExist = async(useremail) => {
     const query = `SELECT * FROM users WHERE useremail = '${useremail}'`;
     const result = await runQuery.runQuery(query);
     return result;
 };
-const insertDocService = async(id, useremail, docInfo) => {
+// This function insert doc database 
+const insertDoc = async(id, useremail, docInfo) => {
         try {
             const query = `INSERT INTO user_docs (userid,doctitle,doctags,docdata,date) VALUES (${id},'${
       docInfo.docTitle
@@ -21,22 +24,26 @@ const insertDocService = async(id, useremail, docInfo) => {
     return "error";
   }
 };
-const addLikeService = async (userid, docid) => {
+// This function add like to doc 
+const addLike = async (userid, docid) => {
   const query = `INSERT INTO likes (userid,postid) VALUES (${userid},${docid})`;
   const result = await runQuery.runQuery(query);
   return result;
 };
-const checkIfUserLikedService = async (userid, docids) => {
+// This function check if user liked doc 
+const checkIfUserLiked = async (userid, docids) => {
   const query = `SELECT * FROM likes WHERE likes.userid = ${userid} AND likes.postid  IN (${docids})`;
   const result = await runQuery.runQuery(query);
   return result;
 };
-const deletLikeService = async (userid, docid) => {
+// This function this delete like from liked doc 
+const deletLike = async (userid, docid) => {
   const query = `DELETE FROM likes WHERE userid = ${userid} AND postid = ${docid}`;
   const result = await runQuery.runQuery(query);
   return result;
 };
-const getUserDataService = async (userid) => {
+// This function get user own docs data 
+const getUserData = async (userid) => {
   const query = `SELECT
   user_docs.*,
   users.profileimage,
@@ -49,7 +56,8 @@ const getUserDataService = async (userid) => {
   const result = await runQuery.runQuery(query);
   return result;
 };
-const editProfileService = async (userid, user, imgUrl) => {
+// This function edit profile 
+const editProfile = async (userid, user, imgUrl) => {
   const query = `UPDATE users SET 
   username = '${user.name}', 
   birthday = '${user.birthday}', 
@@ -64,19 +72,22 @@ const editProfileService = async (userid, user, imgUrl) => {
   const result = await runQuery.runQuery(query);
   return result;
 };
-const deleteDocService = async (userid, docid) => {
+// This function delete user own doc 
+const deleteDoc = async (userid, docid) => {
   const query = `DELETE FROM user_docs WHERE id = ${Number(
     docid
   )} AND userid = ${userid}`;
   const result = await runQuery.runQuery(query);
   return result;
 };
-const getDocService = async (docid) => {
+// This function get doc by id 
+const getDoc = async (docid) => {
   const query = `SELECT * FROM user_docs WHERE id = ${Number(docid)}`;
   const result = await runQuery.runQuery(query);
   return result;
 };
-const editDocService = async (docid, docInfo) => {
+// This function edit doc 
+const editDoc = async (docid, docInfo) => {
   const query = `UPDATE user_docs SET doctitle = '${
     docInfo.docTitle
   }',doctags = '${docInfo.tags}',docdata = '${docInfo.markdown.replace(
@@ -89,14 +100,14 @@ const editDocService = async (docid, docInfo) => {
 };
 // Exporting functions
 module.exports = {
-  checkUserExistService,
-  insertDocService,
-  addLikeService,
-  checkIfUserLikedService,
-  deletLikeService,
-  getUserDataService,
-  editProfileService,
-  deleteDocService,
-  getDocService,
-  editDocService,
+  checkUserExist,
+  insertDoc,
+  addLike,
+  checkIfUserLiked,
+  deletLike,
+  getUserData,
+  editProfile,
+  deleteDoc,
+  getDoc,
+  editDoc,
 };
