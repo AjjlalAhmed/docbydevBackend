@@ -167,6 +167,14 @@ const editprofile = async(req, res) => {
                 .outputFile(imgBase64String, filePath)
                 .then((imgSrc) => {
                     imgSrc = imgSrc.replace(`public`, "");
+                    console.log(req.hostname);
+                    if (req.hostname == "localhost") {
+                        imgBase64String = `http://${req.hostname}:${
+              process.env.PORT || 3000
+            }${imgSrc}`;
+                    } else {
+                        imgBase64String = `http://${req.hostname}${imgSrc}`;
+                    }
                     imgBase64String = `http://${req.hostname}:${
             process.env.PORT || 3000
           }${imgSrc}`;
