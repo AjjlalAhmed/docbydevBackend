@@ -11,7 +11,7 @@ db.connect(function(err) {
     if (err) throw err;
     console.log("Connected!");
     // connect to the MySQL server
-    let query = `CREATE TABLE IF NOT EXISTS users(   
+    let createUserTableQuery = `CREATE TABLE IF NOT EXISTS users(   
         id INT auto_increment, 
         username VARCHAR(255),
         useremail VARCHAR(1000),
@@ -28,12 +28,42 @@ db.connect(function(err) {
         gender TEXT,
         PRIMARY KEY(id)
         )`;
-
-    db.query(query, function(err, results, fields) {
+    db.query(createUserTableQuery, function(err, results, fields) {
         if (err) {
             console.log(err);
+        } else {
+            console.log(results);
         }
     });
-
+    let createUserDocsTableQuery = `CREATE TABLE IF NOT EXISTS user_docs(
+        id INT auto_increment, 
+        userid INT,
+        doctitle VARCHAR(1000),
+        doctags VARCHAR(1000),
+        docdata LONGTEXT,
+        data VARCHAR(1000),
+        likes INT,
+        PRIMARY KEY(id)
+    )`;
+    db.query(createUserDocsTableQuery, function(err, results, fields) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(results);
+        }
+    });
+    let createDocsLikedsTableQuery = `CREATE TABLE IF NOT EXISTS likes(
+        id INT auto_increment, 
+        userid INT,
+        postid INT,
+        PRIMARY KEY(id)
+    )`;
+    db.query(createDocsLikedsTableQuery, function(err, results, fields) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(results);
+        }
+    });
 });
 module.exports = db;
