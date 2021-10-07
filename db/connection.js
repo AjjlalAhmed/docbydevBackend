@@ -1,15 +1,10 @@
 const mysql = require("mysql");
-const db = mysql.createConnection({
-    host: process.env.HOST,
+const pool = mysql.createPool({
+    host: "zf4b0c949-mysql.qovery.io",
     user: process.env.USER || "root",
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE || "docbydev",
+    password: "6eEDMxs8iJiFUXk2",
+    database: "mysql-zf4b0c949",
     charset: "utf8mb4",
     collation: "utf8mb4_unicode_ci",
 });
-db.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected!");
-    // connect to the MySQL server
-});
-module.exports = db;
+module.exports = pool;
