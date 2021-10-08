@@ -1,8 +1,8 @@
 // Importing thing we need
 const express = require("express");
 const cors = require("cors");
-require("./db/connection");
 require("dotenv").config();
+require("./db/connection");
 // Creating app
 const app = express();
 // Middleware
