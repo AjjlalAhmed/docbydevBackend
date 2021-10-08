@@ -13,7 +13,7 @@ const runQuery = (query) => {
                 });
             });
         } catch (e) {
-            return reject({ Error: err, reject: true });
+            return reject({ Error: e, reject: true });
         }
     });
 };
