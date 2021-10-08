@@ -34,7 +34,7 @@ const signup = async(req, res) => {
         // Calling check if user service
         const user = await authenticateServices.checkUserExis(useremail);
         // Creating access token
-        const token = jwt.sign(useremail, process.env.SECRET);
+        const token = await jwt.sign(useremail, process.env.SERVER_SECRET);
         // Sending response to client
         res.send(createResponseObject(token, "New user added to database", user));
     } catch (e) {
@@ -62,7 +62,7 @@ const login = async(req, res) => {
         // Throw error
         if (!validPassword) throw "Password does not match";
         // Creating access token
-        const token = jwt.sign(useremail, process.env.SECRET);
+        const token = await jwt.sign(useremail, process.env.SERVER_SECRET);
         // Send response to client
         res.send(createResponseObject(token, "User logged in", user));
     } catch (e) {

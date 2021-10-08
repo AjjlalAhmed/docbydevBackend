@@ -12,7 +12,7 @@ const errorHandler = (error, res) => {
         res.send({
             status: 401,
             error: "Unauthorized",
-            errorMessage: "Invalid signature",
+            errorMessage: error,
         });
     }
     // Run if invalid email

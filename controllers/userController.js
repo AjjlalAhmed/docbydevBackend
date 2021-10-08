@@ -11,7 +11,7 @@ const checkToken = async(req, res) => {
     const token = req.body.token;
     try {
         // Verifying user token
-        const verifyUser = jwt.verify(token, process.env.SECRET);
+        const verifyUser = jwt.verify(token, process.env.SERVER_SECRET);
         // Getting user data of given email
         const user = await userServices.checkUserExist(verifyUser);
         if (user.result.length == 0) throw "User";
@@ -36,7 +36,7 @@ const insertDoc = async(req, res) => {
     try {
         if ((tags, docTitle, markdown, token == "")) throw "Some field is missing";
         // Verifying user token
-        const verifyUser = jwt.verify(token, process.env.SECRET);
+        const verifyUser = jwt.verify(token, process.env.SERVER_SECRET);
         // Getting user data
         const user = await userServices.checkUserExist(verifyUser);
         // Checking if user exist
@@ -65,7 +65,7 @@ const addLikeToDocById = async(req, res) => {
     const token = req.header("authorization");
     try {
         // verifying user token
-        const useremail = jwt.verify(token, process.env.SECRET);
+        const useremail = jwt.verify(token, process.env.SERVER_SECRET);
         // Checking if user exist
         const user = await userServices.checkUserExist(useremail);
         // Throw error
@@ -126,7 +126,7 @@ const getUserData = async(req, res) => {
     const token = req.header("authorization");
     try {
         // verifying user token
-        jwt.verify(token, process.env.SECRET);
+        jwt.verify(token, process.env.SERVER_SECRET);
         // Calling get user data service
         const data = await userServices.getUserData(userid);
         if (data.result.length == 0) throw "Empty";
@@ -178,7 +178,7 @@ const editprofile = async(req, res) => {
                 });
         }
         // Verifying user token
-        const useremail = await jwt.verify(token, process.env.SECRET);
+        const useremail = await jwt.verify(token, process.env.SERVER_SECRET);
         // Checking if user exist
         const user = await userServices.checkUserExist(useremail);
         // Throw error
@@ -202,7 +202,7 @@ const deleteDoc = async(req, res) => {
     try {
         if (!docid || docid == "null") throw "Docid not define";
         // verifying user token
-        const useremail = jwt.verify(token, process.env.SECRET);
+        const useremail = jwt.verify(token, process.env.SERVER_SECRET);
         // Checking if user exist
         const user = await userServices.checkUserExist(useremail);
         // Throw error
@@ -227,7 +227,7 @@ const getdoc = async(req, res) => {
     try {
         if (!docid || docid == "null") throw "Docid not define";
         // verifying user token
-        const useremail = jwt.verify(token, process.env.SECRET);
+        const useremail = jwt.verify(token, process.env.SERVER_SECRET);
         // Calling get doc service
         const doc = await userServices.getDoc(docid);
         // Sending response to client
@@ -253,7 +253,7 @@ const editDoc = async(req, res) => {
     try {
         if ((tags, docTitle, markdown, token == "")) throw "Some field is missing";
         // Verifying user token
-        const verifyUser = jwt.verify(token, process.env.SECRET);
+        const verifyUser = jwt.verify(token, process.env.SERVER_SECRET);
         // Getting user data
         const user = await userServices.checkUserExist(verifyUser);
         // Checking if user exist
