@@ -5,7 +5,6 @@ const errorHandler = (error, res) => {
             status: 400,
             error: "Missing",
             errorMessage: "Some field are missing",
-            fullMessage: error,
         });
     }
     //   Run if jwt error
@@ -14,7 +13,6 @@ const errorHandler = (error, res) => {
             status: 401,
             error: "Unauthorized",
             errorMessage: "Invalid signature",
-            fullMessage: error,
         });
     }
     // Run if invalid email
@@ -23,7 +21,6 @@ const errorHandler = (error, res) => {
             status: 400,
             error: "Email",
             errorMessage: "Please enter valid email",
-            fullMessage: error,
         });
     }
     // Run if user does not exist
@@ -32,7 +29,6 @@ const errorHandler = (error, res) => {
             status: 401,
             error: "Email",
             errorMessage: error,
-            fullMessage: error,
         });
     }
     // Run if password does not match
@@ -41,7 +37,6 @@ const errorHandler = (error, res) => {
             status: 401,
             error: "Password",
             errorMessage: error,
-            fullMessage: error,
         });
     }
     // Run if user does not exist
@@ -50,7 +45,6 @@ const errorHandler = (error, res) => {
             status: 401,
             error: "Email",
             errorMessage: "User does not exist",
-            fullMessage: error,
         });
     }
     //   Run if don't like rror
@@ -59,7 +53,6 @@ const errorHandler = (error, res) => {
             status: 200,
             error: "Not Liked",
             errorMessage: "User do not any doc",
-            fullMessage: error,
         });
     }
     // Run if user does not exist
@@ -68,7 +61,6 @@ const errorHandler = (error, res) => {
             status: 404,
             error: "Empty",
             errorMessage: "Docs not found",
-            fullMessage: error,
         });
     }
     //   Run if jwt error
@@ -77,7 +69,6 @@ const errorHandler = (error, res) => {
             status: 409,
             error: "docid",
             errorMessage: "Docid is not define",
-            fullMessage: error,
         });
     }
     // Run if server error
@@ -86,7 +77,6 @@ const errorHandler = (error, res) => {
             status: 500,
             error: "Server",
             errorMessage: "Internel server error",
-            fullMessage: error,
         });
     }
 };
