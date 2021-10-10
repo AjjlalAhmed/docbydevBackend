@@ -42,7 +42,7 @@ const uploadImageToDrive = async(path, name) => {
         };
         // Setting permissions to public
         await drive.permissions.create(drivePermissions);
-        // Getting image id 
+        // Getting image id
         await drive.files.get({
             fileId: response.data.id,
         });
@@ -64,9 +64,15 @@ const createImage = async(imgBase64String, oldImgId) => {
     // Replacing public to empty string
     img = img.replace("public", "");
     // Uploading image to google drive
+    console.log(
+        path.join(
+            __dirname.replace("helpers", `public\\assets\\uploads\\profileImages`),
+            `${imgName}.jpeg`
+        )
+    );
     imgUrl = await uploadImageToDrive(
         path.join(
-            `D:\\keep-coding\\VueProjects\\docbydev\\server\\public\\assets\\uploads\\profileImages`,
+            __dirname.replace("helpers", `public\\assets\\uploads\\profileImages`),
             `${imgName}.jpeg`
         ),
         imgName
