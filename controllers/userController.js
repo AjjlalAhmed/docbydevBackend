@@ -1,9 +1,9 @@
 // Importing thing we need
 const jwt = require("jsonwebtoken");
 const userServices = require("../services/userServices");
-const imageDataURI = require("image-data-uri");
 const createResponseObject = require("../helpers/createResponseObject");
 const errorHandler = require("../helpers/errorHandler");
+const imageHandler = require("../helpers/imageHandler");
 // Functions
 // Check user token controller
 const checkToken = async(req, res) => {
@@ -39,7 +39,7 @@ const insertDoc = async(req, res) => {
         const verifyUser = jwt.verify(token, process.env.SERVER_SECRET);
         // Getting user data
         const user = await userServices.checkUserExist(verifyUser);
-        // Checking if user exist
+        // Calling check user exist service
         if (user.result[0].length == 0) throw "User";
         const docInfo = { docTitle, tags, markdown };
         // Calling insert doc service
@@ -66,7 +66,7 @@ const addLikeToDocById = async(req, res) => {
     try {
         // verifying user token
         const useremail = jwt.verify(token, process.env.SERVER_SECRET);
-        // Checking if user exist
+        // Calling check user exist service
         const user = await userServices.checkUserExist(useremail);
         // Throw error
         if (user.result.length == 0) throw "User";
@@ -145,7 +145,10 @@ const getUserData = async(req, res) => {
 const editprofile = async(req, res) => {
     // Extracting user data for req body
     const token = req.body.token;
+    const oldImgId = req.body.oldImgId
+    let changeImg = false;
     let imgBase64String = req.body.img;
+    let imgUrl = null;
     const userNewData = {
         name: req.body.name,
         email: req.body.email,
@@ -159,34 +162,31 @@ const editprofile = async(req, res) => {
         site: req.body.site,
     };
     try {
-        // Converting base64 string image
-        if (imgBase64String.includes("data:image/")) {
-            let filePath = `public/assets/uploads/profileImages/image-${Date.now()}`;
-            // Returns a Promise
-            await imageDataURI
-                .outputFile(imgBase64String, filePath)
-                .then((imgSrc) => {
-                    imgSrc = imgSrc.replace(`public`, "");
-                    console.log(req.hostname);
-                    if (req.hostname == "localhost") {
-                        imgBase64String = `http://${req.hostname}:${
-              process.env.PORT || 3000
-            }${imgSrc}`;
-                    } else {
-                        imgBase64String = `http://${req.hostname}${imgSrc}`;
-                    }
-                });
-        }
+        // Checking if base64 string
+        await (async() => {
+            if (
+                typeof imgBase64String == "string" &&
+                imgBase64String.includes("data:image/")
+            ) {
+                changeImg = true;
+                imgUrl = await imageHandler.createImage(imgBase64String, oldImgId);
+            }
+        })();
         // Verifying user token
         const useremail = await jwt.verify(token, process.env.SERVER_SECRET);
-        // Checking if user exist
+        // Calling check user exist service
         const user = await userServices.checkUserExist(useremail);
         // Throw error
         if (user.result.length == 0) throw "User";
-        const userid = user.result[0].id;
-        // Calling edit profile service
-        await userServices.editProfile(userid, userNewData, imgBase64String);
-        // Checking if user exist
+        // Checking if have to change
+        if (changeImg) {
+            // Calling edit profile service
+            await userServices.editProfile(user.result[0].id, userNewData, imgUrl);
+        } else {
+            // Calling edit profile service
+            await userServices.editProfile(user.result[0].id, userNewData, changeImg);
+        }
+        // Calling check user exist service
         const updatedUser = await userServices.checkUserExist(useremail);
         // Sending response to client
         res.send(createResponseObject(token, "Profile edit", updatedUser));
@@ -203,7 +203,7 @@ const deleteDoc = async(req, res) => {
         if (!docid || docid == "null") throw "Docid not define";
         // verifying user token
         const useremail = jwt.verify(token, process.env.SERVER_SECRET);
-        // Checking if user exist
+        // Calling check user exist service
         const user = await userServices.checkUserExist(useremail);
         // Throw error
         if (user.result.length == 0) throw "User";
@@ -256,7 +256,7 @@ const editDoc = async(req, res) => {
         const verifyUser = jwt.verify(token, process.env.SERVER_SECRET);
         // Getting user data
         const user = await userServices.checkUserExist(verifyUser);
-        // Checking if user exist
+        // Calling check user exist service
         if (user.result[0].length == 0) throw "User";
         const docInfo = { docTitle, tags, markdown };
         // Calling insert doc service

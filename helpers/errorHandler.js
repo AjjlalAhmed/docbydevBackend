@@ -71,6 +71,14 @@ const errorHandler = (error, res) => {
             errorMessage: "Docid is not define",
         });
     }
+    //   Run if jwt error
+    else if (error == "Not base64 string") {
+        res.send({
+            status: 500,
+            error: "Base64",
+            errorMessage: "Not base64 string",
+        });
+    }
     // Run if server error
     else {
         res.send({

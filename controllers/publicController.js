@@ -71,9 +71,26 @@ const getUserProfileById = async(req, res) => {
         errorHandler(e, res);
     }
 };
+const search = async(req, res) => {
+    const search = req.params.search;
+    try {
+        const data = await publicServices.search(search);
+        if (data.result.length == 0) throw "Empty";
+        // Sending response to client
+        res.send({
+            status: 200,
+            error: null,
+            message: "All docs",
+            docs: data.result,
+        });
+    } catch (e) {
+        errorHandler(e, res);
+    }
+};
 // Exporting functions
 module.exports = {
     getDocs,
     getDocById,
     getUserProfileById,
+    search,
 };

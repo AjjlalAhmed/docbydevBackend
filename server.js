@@ -2,7 +2,6 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-require("./db/connection");
 // Creating app
 const app = express();
 // Middleware

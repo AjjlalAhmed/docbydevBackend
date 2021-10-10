@@ -2,13 +2,13 @@
 const runQuery = require("../helpers/runQuery");
 // Functions
 
-// This function check if user exist 
+// This function check if user exist
 const checkUserExist = async(useremail) => {
     const query = `SELECT * FROM users WHERE useremail = '${useremail}'`;
     const result = await runQuery.runQuery(query);
     return result;
 };
-// This function insert doc database 
+// This function insert doc database
 const insertDoc = async(id, useremail, docInfo) => {
         try {
             const query = `INSERT INTO user_docs (userid,doctitle,doctags,docdata,date) VALUES (${id},'${
@@ -24,25 +24,25 @@ const insertDoc = async(id, useremail, docInfo) => {
     return "error";
   }
 };
-// This function add like to doc 
+// This function add like to doc
 const addLike = async (userid, docid) => {
   const query = `INSERT INTO likes (userid,postid) VALUES (${userid},${docid})`;
   const result = await runQuery.runQuery(query);
   return result;
 };
-// This function check if user liked doc 
+// This function check if user liked doc
 const checkIfUserLiked = async (userid, docids) => {
   const query = `SELECT * FROM likes WHERE likes.userid = ${userid} AND likes.postid  IN (${docids})`;
   const result = await runQuery.runQuery(query);
   return result;
 };
-// This function this delete like from liked doc 
+// This function this delete like from liked doc
 const deletLike = async (userid, docid) => {
   const query = `DELETE FROM likes WHERE userid = ${userid} AND postid = ${docid}`;
   const result = await runQuery.runQuery(query);
   return result;
 };
-// This function get user own docs data 
+// This function get user own docs data
 const getUserData = async (userid) => {
   const query = `SELECT
   user_docs.*,
@@ -56,23 +56,38 @@ const getUserData = async (userid) => {
   const result = await runQuery.runQuery(query);
   return result;
 };
-// This function edit profile 
+// This function edit profile
 const editProfile = async (userid, user, imgUrl) => {
-  const query = `UPDATE users SET 
-  username = '${user.name}', 
-  birthday = '${user.birthday}', 
-  profession = '${user.profession}', 
-  bio = '${user.bio}',
-  skills = '${user.skills}',
-  phone = '${user.phone}',
-  address = '${user.address}',
-  site = '${user.site}',
-  gender = '${user.gender}',
-  profileimage = '${imgUrl}' WHERE id = ${Number(userid)}`;
+  let query = null
+  if (imgUrl) {
+    query = `UPDATE users SET 
+    username = '${user.name}', 
+    birthday = '${user.birthday}', 
+    profession = '${user.profession}', 
+    bio = '${user.bio}',
+    skills = '${user.skills}',
+    phone = '${user.phone}',
+    address = '${user.address}',
+    site = '${user.site}',
+    gender = '${user.gender}',
+    profileimage = '${imgUrl}' WHERE id = ${Number(userid)} `;
+  } else {
+    query = `UPDATE users SET 
+    username = '${user.name}', 
+    birthday = '${user.birthday}', 
+    profession = '${user.profession}', 
+    bio = '${user.bio}',
+    skills = '${user.skills}',
+    phone = '${user.phone}',
+    address = '${user.address}',
+    site = '${user.site}',
+    gender = '${user.gender}' 
+    WHERE id = ${Number(userid)} `;
+  }
   const result = await runQuery.runQuery(query);
   return result;
 };
-// This function delete user own doc 
+// This function delete user own doc
 const deleteDoc = async (userid, docid) => {
   const query = `DELETE FROM user_docs WHERE id = ${Number(
     docid
@@ -80,13 +95,13 @@ const deleteDoc = async (userid, docid) => {
   const result = await runQuery.runQuery(query);
   return result;
 };
-// This function get doc by id 
+// This function get doc by id
 const getDoc = async (docid) => {
   const query = `SELECT * FROM user_docs WHERE id = ${Number(docid)}`;
   const result = await runQuery.runQuery(query);
   return result;
 };
-// This function edit doc 
+// This function edit doc
 const editDoc = async (docid, docInfo) => {
   const query = `UPDATE user_docs SET doctitle = '${
     docInfo.docTitle

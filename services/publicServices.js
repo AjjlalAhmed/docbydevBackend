@@ -2,9 +2,9 @@
 const runQuery = require("../helpers/runQuery");
 // Functions
 const getDocs = async(category) => {
-    if (category == "latest") category = "user_docs.date DESC"
-    else if (category == "top") category = "totallikes DESC"
-    else if (category == "feed") category = "RAND()"
+    if (category == "latest") category = "user_docs.date DESC";
+    else if (category == "top") category = "totallikes DESC";
+    else if (category == "feed") category = "RAND()";
     const query = `SELECT
     user_docs.*,
     users.username,
@@ -65,10 +65,25 @@ const getUserDataById = async(userid) => {
     const result = await runQuery.runQuery(query);
     return result;
 };
+const search = async(search) => {
+    const query = `SELECT
+    user_docs.*,
+    users.username,
+    users.profileimage,
+    COUNT(likes.postid) as totallikes
+    FROM user_docs
+    INNER JOIN users ON user_docs.userid = users.id
+    LEFT JOIN likes ON  user_docs.id = likes.postid
+    GROUP BY user_docs.id
+    HAVING user_docs.doctitle LIKE '%${search}%'`;
+    const result = await runQuery.runQuery(query);
+    return result;
+};
 // Exporting functions
 module.exports = {
     getDocs,
     getDocById,
     getUserDocsById,
-    getUserDataById
+    getUserDataById,
+    search,
 };
