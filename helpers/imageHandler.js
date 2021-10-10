@@ -66,13 +66,13 @@ const createImage = async(imgBase64String, oldImgId) => {
     // Uploading image to google drive
     console.log(
         path.join(
-            __dirname.replace("helpers", `public\\assets\\uploads\\profileImages`),
+            __dirname.replace("helpers", `public/assets/uploads/profileImages`),
             `${imgName}.jpeg`
         )
     );
     imgUrl = await uploadImageToDrive(
         path.join(
-            __dirname.replace("helpers", `public\\assets\\uploads\\profileImages`),
+            __dirname.replace("helpers", `public/assets/uploads/profileImages`),
             `${imgName}.jpeg`
         ),
         imgName
