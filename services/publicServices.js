@@ -2,10 +2,7 @@
 const runQuery = require("../helpers/runQuery");
 // Functions
 const getDocs = async(category) => {
-    if (category == "latest") category = "user_docs.date DESC";
-    else if (category == "top") category = "totallikes DESC";
-    else if (category == "feed") category = "RAND()";
-    const query = `SELECT
+    let query = `SELECT
     user_docs.*,
     users.username,
     users.profileimage,
@@ -14,12 +11,15 @@ const getDocs = async(category) => {
     INNER JOIN users ON user_docs.userid = users.id
     LEFT JOIN likes ON  user_docs.id = likes.postid
     GROUP BY user_docs.id
-    ORDER BY ${category}
-    `;
-    const result = await runQuery.runQuery(query);
+    ORDER BY `;
+    if (category == "latest") query = query.concat("user_docs.date ASC");
+    else if (category == "top") query = query.concat("totallikes DESC");
+    else if (category == "feed") query = query.concat("RAND()");
+    const result = await runQuery.runQuery(query, []);
     return result;
 };
 const getDocById = async(id) => {
+    const data = [Number(id)];
     const query = `SELECT user_docs.*,
      users.username, 
      users.profileimage, 
@@ -29,12 +29,13 @@ const getDocById = async(id) => {
      INNER JOIN users 
      ON user_docs.userid = users.id 
      LEFT JOIN likes ON user_docs.id = likes.postid 
-     WHERE user_docs.id = ${Number(id)} 
+     WHERE user_docs.id = ?
      #GROUP BY user_docs.id`;
-    const result = await runQuery.runQuery(query);
+    const result = await runQuery.runQuery(query, data);
     return result;
 };
 const getUserDocsById = async(userid) => {
+    const data = [Number(userid)];
     const query = `SELECT
     user_docs.*,
     users.profileimage,
@@ -42,30 +43,23 @@ const getUserDocsById = async(userid) => {
     FROM user_docs
     LEFT JOIN likes ON  user_docs.id = likes.postid
     INNER JOIN users ON  user_docs.userid = users.id
-    WHERE user_docs.userid = ${Number(userid)}
+    WHERE user_docs.userid = ?
     GROUP BY user_docs.id`;
-    const result = await runQuery.runQuery(query);
+    const result = await runQuery.runQuery(query, data);
     return result;
 };
 const getUserDataById = async(userid) => {
+    const data = [Number(userid)];
     const query = `SELECT username,
-    useremail,
-    id,
-    joined,
-    profession,
-    phone,
-    address,
-    site,
-    birthday,
-    gender,
-    bio,
-    skills,
-    profileimage FROM users 
-    WHERE id = ${Number(userid)} `;
-    const result = await runQuery.runQuery(query);
+    useremail,id,joined,profession,phone,address,site,
+    birthday,gender,bio,skills,profileimage 
+    FROM users 
+    WHERE id = ? `;
+    const result = await runQuery.runQuery(query, data);
     return result;
 };
 const search = async(search) => {
+    const data = [`%${search}%`];
     const query = `SELECT
     user_docs.*,
     users.username,
@@ -75,8 +69,8 @@ const search = async(search) => {
     INNER JOIN users ON user_docs.userid = users.id
     LEFT JOIN likes ON  user_docs.id = likes.postid
     GROUP BY user_docs.id
-    HAVING user_docs.doctitle LIKE '%${search}%'`;
-    const result = await runQuery.runQuery(query);
+    HAVING user_docs.doctitle LIKE ?`;
+    const result = await runQuery.runQuery(query, data);
     return result;
 };
 // Exporting functions

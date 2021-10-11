@@ -208,7 +208,7 @@ const deleteDoc = async(req, res) => {
         // Throw error
         if (user.result.length == 0) throw "User";
         // Calling delete doc service
-        const deleted = await userServices.deleteDoce(user.result[0].id, docid);
+        const deleted = await userServices.deleteDoc(user.result[0].id, docid);
         // Sending response to client
         res.send({
             status: 200,

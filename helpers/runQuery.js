@@ -1,12 +1,12 @@
 // Importing thing we need
 const pool = require("../db/connection");
 // Function
-const runQuery = (query) => {
+const runQuery = (query, value) => {
     return new Promise((resolve, reject) => {
         try {
             pool.getConnection((err, connection) => {
                 if (err) throw err;
-                connection.query(query, (err, result) => {
+                connection.query(query, value, (err, result) => {
                     if (err) throw err;
                     connection.release();
                     return resolve({ result: result, reject: false });
