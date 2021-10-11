@@ -102,7 +102,6 @@ const editDoc = async(docid, docInfo) => {
     const docData = docInfo.markdown.replace(/'/g, "`");
     const data = [
         docInfo.docTitle,
-        docInfo.docTitle,
         docInfo.tags,
         docData,
         Number(docid),
