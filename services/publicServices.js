@@ -12,7 +12,7 @@ const getDocs = async(category) => {
     LEFT JOIN likes ON  user_docs.id = likes.postid
     GROUP BY user_docs.id
     ORDER BY `;
-    if (category == "latest") query = query.concat("user_docs.date ASC");
+    if (category == "latest") query = query.concat("user_docs.id DESC");
     else if (category == "top") query = query.concat("totallikes DESC");
     else if (category == "feed") query = query.concat("RAND()");
     const result = await runQuery.runQuery(query, []);
