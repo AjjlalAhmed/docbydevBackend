@@ -1,7 +1,8 @@
 const errorHandler = (error, res) => {
+    console.log(error);
     //   Run if some field missing
     if (error == "Some field is missing") {
-        res.send({
+        res.status(400).send({
             status: 400,
             error: "Missing",
             errorMessage: "Some field are missing",
@@ -9,7 +10,7 @@ const errorHandler = (error, res) => {
     }
     //   Run if jwt error
     else if (error.name == "JsonWebTokenError") {
-        res.send({
+        res.status(401).send({
             status: 401,
             error: "Unauthorized",
             errorMessage: error,
@@ -17,7 +18,7 @@ const errorHandler = (error, res) => {
     }
     // Run if invalid email
     else if (error == "Invalid email") {
-        res.send({
+        res.status(400).send({
             status: 400,
             error: "Email",
             errorMessage: "Please enter valid email",
@@ -25,31 +26,31 @@ const errorHandler = (error, res) => {
     }
     // Run if user does not exist
     else if (error == "User does not exist") {
-        res.send({
-            status: 401,
-            error: "Email",
-            errorMessage: error,
-        });
-    }
-    // Run if password does not match
-    else if (error == "Password does not match") {
-        res.send({
-            status: 401,
-            error: "Password",
-            errorMessage: error,
-        });
-    }
-    // Run if user does not exist
-    else if (error == "User") {
-        res.send({
+        res.status(401).send({
             status: 401,
             error: "Email",
             errorMessage: "User does not exist",
         });
     }
+    //   Run if user exits
+    else if (error == "User exist") {
+        res.status(401).send({
+            status: 401,
+            error: "Email",
+            errorMessage: "User does not exist",
+        });
+    }
+    // Run if password does not match
+    else if (error == "Password does not match") {
+        res.status(401).send({
+            status: 401,
+            error: "Password",
+            errorMessage: error,
+        });
+    }
     //   Run if don't like rror
     else if (error == "Don't like") {
-        res.send({
+        res.status(200).send({
             status: 200,
             error: "Not Liked",
             errorMessage: "User do not any doc",
@@ -57,7 +58,7 @@ const errorHandler = (error, res) => {
     }
     // Run if user does not exist
     else if (error == "Empty") {
-        res.send({
+        res.status(404).send({
             status: 404,
             error: "Empty",
             errorMessage: "Docs not found",
@@ -65,7 +66,7 @@ const errorHandler = (error, res) => {
     }
     //   Run if jwt error
     else if (error == "Docid not define") {
-        res.send({
+        res.status(400).send({
             status: 409,
             error: "docid",
             errorMessage: "Docid is not define",
@@ -73,15 +74,15 @@ const errorHandler = (error, res) => {
     }
     //   Run if jwt error
     else if (error == "Not base64 string") {
-        res.send({
-            status: 500,
+        res.status(400).send({
+            status: 400,
             error: "Base64",
             errorMessage: "Not base64 string",
         });
     }
     // Run if server error
     else {
-        res.send({
+        res.status(500).send({
             status: 500,
             error: "Server",
             errorMessage: "Internel server error",

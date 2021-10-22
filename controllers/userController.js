@@ -4,6 +4,7 @@ const userServices = require("../services/userServices");
 const createResponseObject = require("../helpers/createResponseObject");
 const errorHandler = require("../helpers/errorHandler");
 const imageHandler = require("../helpers/imageHandler");
+
 // Functions
 // Check user token controller
 const checkToken = async(req, res) => {
@@ -11,16 +12,16 @@ const checkToken = async(req, res) => {
     const token = req.body.token;
     try {
         // Verifying user token
-        const verifyUser = jwt.verify(token, process.env.SERVER_SECRET);
+        const verifiedUser = jwt.verify(token, process.env.SERVER_SECRET);
         // Getting user data of given email
-        const user = await userServices.checkUserExist(verifyUser);
-        if (user.result.length == 0) throw "User";
+        const user = await userServices.checkUserExist(verifiedUser.useremail);
+        if (user.result.length == 0) throw "User does not exist";
         // Sending response to client
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             message: "Valid user",
-            isUser: verifyUser,
+            isUser: verifiedUser.useremail,
         });
     } catch (e) {
         errorHandler(e, res);
@@ -36,20 +37,21 @@ const insertDoc = async(req, res) => {
     try {
         if ((tags, docTitle, markdown, token == "")) throw "Some field is missing";
         // Verifying user token
-        const verifyUser = jwt.verify(token, process.env.SERVER_SECRET);
+        const verifiedUser = jwt.verify(token, process.env.SERVER_SECRET);
         // Getting user data
-        const user = await userServices.checkUserExist(verifyUser);
+        const user = await userServices.checkUserExist(verifiedUser.useremail);
         // Calling check user exist service
-        if (user.result[0].length == 0) throw "User";
+        if (user.result[0].length == 0) throw "User does not exist";
+        // Create docInfo object
         const docInfo = { docTitle, tags, markdown };
         // Calling insert doc service
-        const docAdded = await userServices.insertDoc(
+        await userServices.insertDoc(
             user.result[0].id,
-            verifyUser,
+            verifiedUser.useremail,
             docInfo
         );
         // Sending response to client
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             message: "New doc added to database",
@@ -65,11 +67,12 @@ const addLikeToDocById = async(req, res) => {
     const token = req.header("authorization");
     try {
         // verifying user token
-        const useremail = jwt.verify(token, process.env.SERVER_SECRET);
+        const verifiedUser = jwt.verify(token, process.env.SERVER_SECRET);
         // Calling check user exist service
-        const user = await userServices.checkUserExist(useremail);
+        const user = await userServices.checkUserExist(verifiedUser.useremail);
         // Throw error
-        if (user.result.length == 0) throw "User";
+        if (user.result.length == 0) throw "User does not exist";
+        // Extracting user if from qurey result
         const userid = user.result[0].id;
         // Callign check if liked service
         const ifLiked = await userServices.checkIfUserLiked(userid, docid);
@@ -78,7 +81,7 @@ const addLikeToDocById = async(req, res) => {
             // Calling add like service
             const data = await userServices.addLike(userid, docid);
             if (data.reject == false) {
-                res.send({
+                res.status(200).send({
                     status: 200,
                     error: null,
                     message: "Like added to doc",
@@ -88,7 +91,7 @@ const addLikeToDocById = async(req, res) => {
             // Calling delete like service
             const data = await userServices.deletLike(userid, docid);
             if (data.reject == false) {
-                res.send({
+                res.status(200).send({
                     status: 200,
                     error: null,
                     message: "Like deleted to doc",
@@ -96,6 +99,7 @@ const addLikeToDocById = async(req, res) => {
             }
         }
     } catch (e) {
+        console.log(e);
         errorHandler(e, res);
     }
 };
@@ -109,7 +113,7 @@ const checkIfLiked = async(req, res) => {
         const data = await userServices.checkIfUserLiked(userid, docids);
         if (data.result.length == 0) throw "Don't like";
         // Sending response to client
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             message: "liked docs ids",
@@ -131,7 +135,7 @@ const getUserData = async(req, res) => {
         const data = await userServices.getUserData(userid);
         if (data.result.length == 0) throw "Empty";
         // Sending response to client
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             message: "All doc data",
@@ -145,7 +149,7 @@ const getUserData = async(req, res) => {
 const editprofile = async(req, res) => {
     // Extracting user data for req body
     const token = req.body.token;
-    const oldImgId = req.body.oldImgId
+    const oldImgId = req.body.oldImgId;
     let changeImg = false;
     let imgBase64String = req.body.img;
     let imgUrl = null;
@@ -161,6 +165,7 @@ const editprofile = async(req, res) => {
         profession: req.body.profession,
         site: req.body.site,
     };
+    // Trying to update profile
     try {
         // Checking if base64 string
         await (async() => {
@@ -173,11 +178,11 @@ const editprofile = async(req, res) => {
             }
         })();
         // Verifying user token
-        const useremail = await jwt.verify(token, process.env.SERVER_SECRET);
+        const verifiedUser = await jwt.verify(token, process.env.SERVER_SECRET);
         // Calling check user exist service
-        const user = await userServices.checkUserExist(useremail);
+        const user = await userServices.checkUserExist(verifiedUser.useremail);
         // Throw error
-        if (user.result.length == 0) throw "User";
+        if (user.result.length == 0) throw "User does not exist";
         // Checking if have to change
         if (changeImg) {
             // Calling edit profile service
@@ -187,9 +192,13 @@ const editprofile = async(req, res) => {
             await userServices.editProfile(user.result[0].id, userNewData, changeImg);
         }
         // Calling check user exist service
-        const updatedUser = await userServices.checkUserExist(useremail);
+        const updatedUser = await userServices.checkUserExist(
+            verifiedUser.useremail
+        );
         // Sending response to client
-        res.send(createResponseObject(token, "Profile edit", updatedUser));
+        res
+            .status(200)
+            .send(createResponseObject(token, "Profile edit", updatedUser));
     } catch (e) {
         errorHandler(e, res);
     }
@@ -202,15 +211,15 @@ const deleteDoc = async(req, res) => {
     try {
         if (!docid || docid == "null") throw "Docid not define";
         // verifying user token
-        const useremail = jwt.verify(token, process.env.SERVER_SECRET);
+        const verifiedUser = jwt.verify(token, process.env.SERVER_SECRET);
         // Calling check user exist service
-        const user = await userServices.checkUserExist(useremail);
+        const user = await userServices.checkUserExist(verifiedUser.useremail);
         // Throw error
-        if (user.result.length == 0) throw "User";
+        if (user.result.length == 0) throw "User does not exist";
         // Calling delete doc service
-        const deleted = await userServices.deleteDoc(user.result[0].id, docid);
+        await userServices.deleteDoc(user.result[0].id, docid);
         // Sending response to client
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             message: "Doc deleted",
@@ -227,12 +236,12 @@ const getdoc = async(req, res) => {
     try {
         if (!docid || docid == "null") throw "Docid not define";
         // verifying user token
-        const useremail = jwt.verify(token, process.env.SERVER_SECRET);
+        jwt.verify(token, process.env.SERVER_SECRET);
         // Calling get doc service
         const doc = await userServices.getDoc(docid);
         // Sending response to client
         if (doc.result.length == 0) throw "Empty";
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             message: "doc data",
@@ -253,16 +262,16 @@ const editDoc = async(req, res) => {
     try {
         if ((tags, docTitle, markdown, token == "")) throw "Some field is missing";
         // Verifying user token
-        const verifyUser = jwt.verify(token, process.env.SERVER_SECRET);
+        const verifiedUser = jwt.verify(token, process.env.SERVER_SECRET);
         // Getting user data
-        const user = await userServices.checkUserExist(verifyUser);
+        const user = await userServices.checkUserExist(verifiedUser.useremail);
         // Calling check user exist service
-        if (user.result[0].length == 0) throw "User";
+        if (user.result[0].length == 0) throw "User does not exist";
         const docInfo = { docTitle, tags, markdown };
         // Calling insert doc service
-        const docAdded = await userServices.editDoc(docid, docInfo);
+        await userServices.editDoc(docid, docInfo);
         // Sending response to client
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             message: "Doc edit",
@@ -271,6 +280,7 @@ const editDoc = async(req, res) => {
         errorHandler(e, res);
     }
 };
+
 // Exporting functions
 module.exports = {
     checkToken,

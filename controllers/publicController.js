@@ -1,6 +1,7 @@
 // Importing thing we need
 const publicServices = require("../services/publicServices");
 const errorHandler = require("../helpers/errorHandler");
+
 // Functions
 const getDocs = async(req, res) => {
     const category = req.query.category;
@@ -10,7 +11,7 @@ const getDocs = async(req, res) => {
         // Checking if any docs found
         if (data.result.length == 0) throw "Empty";
         // Sending response to client
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             message: "All docs",
@@ -28,7 +29,7 @@ const getDocById = async(req, res) => {
         // Checking is doc
         if (data.result.length == 0) throw "Empty";
         // Sending data to client
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             message: "All doc data",
@@ -47,9 +48,9 @@ const getUserProfileById = async(req, res) => {
         //   Getting user docs of given id
         const userData = await publicServices.getUserDataById(userid);
         // Throw error
-        if (userData.result.length == 0) throw "User";
+        if (userData.result.length == 0) throw "User does not exist";
         // Sending response to client
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             docs: userDocs.result,
@@ -77,7 +78,7 @@ const search = async(req, res) => {
         const data = await publicServices.search(search);
         if (data.result.length == 0) throw "Empty";
         // Sending response to client
-        res.send({
+        res.status(200).send({
             status: 200,
             error: null,
             message: "All docs",
@@ -87,6 +88,7 @@ const search = async(req, res) => {
         errorHandler(e, res);
     }
 };
+
 // Exporting functions
 module.exports = {
     getDocs,

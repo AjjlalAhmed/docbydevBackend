@@ -5,6 +5,7 @@ const authenticateServices = require("../services/authenticateServices");
 const jwt = require("jsonwebtoken");
 const createResponseObject = require("../helpers/createResponseObject");
 const errorHandler = require("../helpers/errorHandler");
+
 // Functions
 // This function controller signup route
 const signup = async(req, res) => {
@@ -34,9 +35,13 @@ const signup = async(req, res) => {
         // Calling check if user service
         const user = await authenticateServices.checkUserExis(useremail);
         // Creating access token
-        const token = await jwt.sign(useremail, process.env.SERVER_SECRET);
+        const token = await jwt.sign({ useremail }, process.env.SERVER_SECRET, {
+            expiresIn: "1d",
+        });
         // Sending response to client
-        res.send(createResponseObject(token, "New user added to database", user));
+        res
+            .status(200)
+            .send(createResponseObject(token, "New user added to database", user));
     } catch (e) {
         errorHandler(e, res);
     }
@@ -62,9 +67,11 @@ const login = async(req, res) => {
         // Throw error
         if (!validPassword) throw "Password does not match";
         // Creating access token
-        const token = await jwt.sign(useremail, process.env.SERVER_SECRET);
+        const token = await jwt.sign({ useremail }, process.env.SERVER_SECRET, {
+            expiresIn: "1d",
+        });
         // Send response to client
-        res.send(createResponseObject(token, "User logged in", user));
+        res.status(200).send(createResponseObject(token, "User logged in", user));
     } catch (e) {
         errorHandler(e, res);
     }
