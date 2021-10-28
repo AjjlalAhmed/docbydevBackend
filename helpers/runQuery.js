@@ -13,8 +13,6 @@ const runQuery = (query, value) => {
                 });
             });
         } catch (e) {
-            console.log(e);
-            error = e;
             return reject({ Error: e, reject: true });
         }
     });

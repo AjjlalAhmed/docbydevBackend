@@ -1,7 +1,9 @@
 // Importing thing we need
 const runQuery = require("../helpers/runQuery");
-// Functions
-const getDocs = async(category) => {
+// Services
+// This service get data
+const getDocs = async(category, limit, offset) => {
+    // Creating query
     let query = `SELECT
     user_docs.*,
     users.username,
@@ -12,10 +14,15 @@ const getDocs = async(category) => {
     LEFT JOIN likes ON  user_docs.id = likes.postid
     GROUP BY user_docs.id
     ORDER BY `;
-    if (category == "latest") query = query.concat("user_docs.id DESC");
-    else if (category == "top") query = query.concat("totallikes DESC");
-    else if (category == "feed") query = query.concat("RAND()");
-    const result = await runQuery.runQuery(query, []);
+    // Checking category
+    if (category == "latest")
+        query = query.concat("user_docs.id DESC LIMIT ? OFFSET ?");
+    else if (category == "top")
+        query = query.concat("totallikes DESC LIMIT ? OFFSET ?");
+    else if (category == "feed") query = query.concat("RAND() LIMIT ? OFFSET ?");
+    // Calling runqurey function
+    const result = await runQuery.runQuery(query, [limit, offset]);
+    // Returning result
     return result;
 };
 const getDocById = async(id) => {
@@ -73,11 +80,25 @@ const search = async(search) => {
     const result = await runQuery.runQuery(query, data);
     return result;
 };
-// Exporting functions
+const getComments = async(id) => {
+    const data = [Number(id)];
+    const query = `SELECT
+    comments.*,
+    COUNT(comments.id) as totalcomments,
+    COUNT(comments_reply.comment_id) as totalreply
+    FROM comments
+    LEFT JOIN comments_reply ON  comments.id = comments_reply.comment_id
+    WHERE comments.id = 1
+    GROUP BY comments.id`;
+    const result = await runQuery.runQuery(query, data);
+    return result;
+};
+// Exporting Services
 module.exports = {
     getDocs,
     getDocById,
     getUserDocsById,
     getUserDataById,
     search,
+    getComments,
 };

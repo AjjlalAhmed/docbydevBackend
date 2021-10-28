@@ -13,6 +13,7 @@ router.get("/getdoc", publicController.getDocs);
 router.get("/getdoc/:id", publicController.getDocById);
 router.get("/userprofile/:userid", publicController.getUserProfileById);
 router.get("/search/:search", publicController.search);
+router.get("/getcomments/", publicController.getComments);
 
 // Authenting routes
 router.post("/signup", autenticateController.signup);

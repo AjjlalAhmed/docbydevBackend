@@ -4,10 +4,17 @@ const errorHandler = require("../helpers/errorHandler");
 
 // Functions
 const getDocs = async(req, res) => {
+    // Extracting data from query
     const category = req.query.category;
+    let page = req.query.page;
     try {
+        if (page == undefined && page == null && page != "Number") page = 1;
+        // Creating limit of result
+        const limit = 50;
+        // Creating offset
+        const offset = (Number(page) - 1) * limit;
         // Getting docs data from db
-        const data = await publicServices.getDocs(category);
+        const data = await publicServices.getDocs(category, limit, offset);
         // Checking if any docs found
         if (data.result.length == 0) throw "Empty";
         // Sending response to client
@@ -88,6 +95,19 @@ const search = async(req, res) => {
         errorHandler(e, res);
     }
 };
+const getComments = async(req, res) => {
+    //   Extracting id from query
+    const id = req.query.id;
+    // Converting id into number
+    if (Number(id)) {
+        // Creating limit of result
+        const limit = 50;
+        // Creating offset
+        const offset = (Number(page) - 1) * limit;
+        // Getting docs data from db
+        const comments = await publicServices.getDocs(category, limit, offset);
+    }
+};
 
 // Exporting functions
 module.exports = {
@@ -95,4 +115,5 @@ module.exports = {
     getDocById,
     getUserProfileById,
     search,
+    getComments,
 };

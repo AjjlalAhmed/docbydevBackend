@@ -1,5 +1,4 @@
 const errorHandler = (error, res) => {
-    console.log(error);
     //   Run if some field missing
     if (error == "Some field is missing") {
         res.status(400).send({
